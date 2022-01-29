@@ -1,0 +1,80 @@
+         Project 3: CLOCK
+ *******************************************
+ COP 3404: INTRO TO SYSTEM SOFTWARE
+
+ STUDENT NAME: Milad Karimi
+ INSTRUCTOR NAME: Scott Piersall
+
+ DUE DATE:        11/5/2020
+ DATE SUBMITTED:  11/12/2020
+ 
+ CLOCK is a SIC Assembly program that is designed to be called
+ at regular intervals to display the time in HHMM format, based
+ on the number of seconds that have elapsed since midnight.
+ CLOCK is a lightweight program that only takes 137 bytes of
+ memory in hex and starts at address 7EC9 so that it can access
+ the timer which is hardwired to the last word in of addressable
+ memory in the SIC system.
+
+ Program reads the number of seconds which have elapsed since
+ midnight form TIMER (the last word of addressable memory in SIC)
+ and stores the value in TIME. 
+ 
+ Program sets MODE to default 0 ( zero for 12 hour format; one for
+ 24 hour format.)
+
+ Program compares the value stored in TIME with ZERO ( The most
+ significant BIT in TIMER can differentiate between 12h format and
+ 24h format. If the most significant BIT in the last word of
+ addressable memory is set to one, the 24 hour format display is
+ expected but the number is also negative.) 
+
+ Program reverses the most significant BIT if the number is negative,
+ and changes MODE to 1 for 24h format.( to switch off the last bit,
+ the value is ‘AND’ed with X’7FFFFF’ and stored back in TIME.)
+	
+	EX:	TIMER	1000 0001 0001 1110 1110 1110	
+		AND	0111 1111 1111 1111 1111 1111	(X,7FFFFF’)
+		TIME	0000 0001 0001 1110 1110 1110	(73454)	
+	
+ Program finds the hour by dividing the number of seconds in TIME by
+ 3600 and stores the value in HOUR.
+
+ Program finds the minute by subtracting HOUR times ten with TIME,
+ and then dividing by 60.
+	
+	EX:	TIME = 73454
+		20 = HOUR =  (73454/3600)
+		24 = MIN =  (TIME-(HOUR*3600))/60 
+
+ Program subtract 12 from HOUR if and only if MODE is set for 12 hour
+ format and the value in hour is greater than 12.
+ 
+ Program sets T to C‘P’ for PM if it is set on 12 hour format.
+
+ Program sets all the bytes of RESULT to 48, ascii code for 0.
+ (RESULT is a 4 bytes reserved memory to hold HOUR and MIN in HHMM format
+ where HH is the two-digit hour, MM is two digit minute.)
+
+ Program determines the first digits of HOUR and MIN by dividing their
+ values by ten. To find their second digits the values are multiplied by
+ 10 and are subtracted from HOUR.
+ 
+ Program finds the ASCII values by adding 48 (ASCII equivalent of ‘0’)
+ to each digit.
+
+	EX:	MIN = 24
+		50 = M1 = (MIN / 10) + 48		
+		52 = M2 = ( MIN – ((MIN \ 10) * 10)) + 48
+
+ Program places all the digits into their appropriate byte location in
+ RESULT by using index addressing. 
+
+ Program outputs the characters that are stored in RESULT to the device #64.
+ (first the program tests if device is ready then allows to write one
+ character at a time, and each time X is incremented by 1 until all characters
+ are accounted for.)
+
+ Program checks MODE and outputs T (A for AM - P for PM) to the same device if
+ the clock is set on 12h format.
+
